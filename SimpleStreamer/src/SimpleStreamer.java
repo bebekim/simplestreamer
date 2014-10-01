@@ -1,7 +1,10 @@
+// SimpleStreamer.java
+// Main class, responsible for setting up shit
+
 import org.kohsuke.args4j.CmdLineException;
 
 public class SimpleStreamer {
-
+	
 	public static void main(String[] args) throws CmdLineException {
 
 		// Parse command line options
@@ -28,14 +31,21 @@ public class SimpleStreamer {
 		}
 		System.err.println("Rate limit of "+rate+" ms");
 		
-		// Start server at sport
+		// Set up webcam
+		//Thread webcam = new Thread(new Webcam(width,height));
+		Thread webcam = new Thread(new Webcam(width,height));
+		webcam.start();
 		
+		// Setup sockets and shit
 		
 		// Connect to all remote hosts
 		for (int i = 0; i < hosts.length; i++) {
 			// remote.connect(hosts[i].hostname,hosts[i].port)
+			Thread new_peer = new Thread(new Peer(hosts[i].hostname, hosts[i].port, i));
+			new_peer.start();
 		}
 		
-		
+		// Wait indefinitely for new Peers
+		// Thread new Peer
 	}
 }

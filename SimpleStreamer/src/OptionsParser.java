@@ -1,3 +1,6 @@
+// OptionsParser.java
+// Handles command line args parsing
+
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
