@@ -21,7 +21,7 @@ public class SimpleStreamer {
 		System.err.println("SimpleStreamer starting on Port "+sport);
 		System.err.println("JFrame window width: "+width);
 		System.err.println("JFrame window height: "+height);
-		if (hosts != null) {
+		if (hosts.length > 0) {
 			System.err.println("List of Remote Hosts/Ports:");
 			for (int i = 0; i < hosts.length; i++) {
 				System.err.println("hostname: "+hosts[i].hostname+" | port: "+hosts[i].port);
