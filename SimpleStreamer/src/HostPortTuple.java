@@ -7,6 +7,5 @@ public class HostPortTuple {
 	public HostPortTuple(String hostname, int port) { 
 		this.hostname = hostname; 
 		this.port = port; 
-	}
-	
+	}	
 }

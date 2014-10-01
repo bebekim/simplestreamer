@@ -28,6 +28,14 @@ public class SimpleStreamer {
 		}
 		System.err.println("Rate limit of "+rate+" ms");
 		
+		// Start server at sport
+		
+		
+		// Connect to all remote hosts
+		for (int i = 0; i < hosts.length; i++) {
+			// remote.connect(hosts[i].hostname,hosts[i].port)
+		}
+		
+		
 	}
-
 }

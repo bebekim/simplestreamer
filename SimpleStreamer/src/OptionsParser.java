@@ -100,4 +100,3 @@ public class OptionsParser {
 		return rate;
 	}
 }
-
