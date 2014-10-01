@@ -1,6 +1,10 @@
 // SimpleStreamer.java
 // Main class, responsible for setting up shit
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 import org.kohsuke.args4j.CmdLineException;
 
 public class SimpleStreamer {
@@ -46,6 +50,32 @@ public class SimpleStreamer {
 		}
 		
 		// Wait indefinitely for new Peers
+		ServerSocket serversocket = null;
+		Socket socket = null;
+		try {
+			serversocket = new ServerSocket(sport);
+			System.err.println("Server listening for incoming connection!");
+			while (true) {
+				socket = serversocket.accept();
+				
+
+				System.err.println("Connected.");
+				Thread con = new Thread(new Peer("NEW CLIENT",5252,100));
+				con.start();
+			}
+			// out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (socket != null)
+				try {
+					socket.close();
+					serversocket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+		
 		// Thread new Peer
 	}
 }

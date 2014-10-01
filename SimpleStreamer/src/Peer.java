@@ -27,11 +27,12 @@ public class Peer implements Runnable {
 		this.port = port;
 		this.peer_no = peer_no;
 		
-		// Add newly created peer (this) to peerlist
-		addPeer(this);
-		
 		// Set up Viewer
 		viewer = new Viewer(320,240,"localhost",peer_no);
+		
+		// Add newly created peer (this) to peerlist
+		// Always do this at end of constructor.. else null ptr from Viewer
+		addPeer(this);
 	}
 	
 	@Override
