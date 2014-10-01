@@ -15,7 +15,7 @@ public class SimpleStreamer {
 		int width = options.getWidth();
 		int height = options.getHeight();
 		int rate = options.getRate();
-		HostPortTuple[] hosts = options.getHosts();	// null means no remote hosts specified
+		HostPortTuple[] hosts = options.getHosts();	// empty list means no remote hosts specified
 		
 		// Debugging Messages - Print out arguments
 		System.err.println("SimpleStreamer starting on Port "+sport);

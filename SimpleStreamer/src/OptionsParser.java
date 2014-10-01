@@ -77,8 +77,8 @@ public class OptionsParser {
 				}
 			}
 		} else {
-			// no remote hosts specified, set to null
-			host_port_tuples = null;
+			// no remote hosts specified, set to empty
+			host_port_tuples = new HostPortTuple[]{};
 		}
 	}
 	
