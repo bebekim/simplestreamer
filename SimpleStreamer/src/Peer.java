@@ -103,7 +103,7 @@ public class Peer implements Runnable {
 		}
 	}
 	
-	private void sendimage(Object obj){
+	private void sendImage(Object obj){
 		/*
 		 * Right now we send the image back to this peer (so you see your own image..)
 		 * What needs to be done is to send this to the other peer (through out stream)
@@ -142,7 +142,7 @@ public class Peer implements Runnable {
 	public static void broadcastToPeers(Object obj){
 		synchronized (peerlist) {
 			for (int i = 0; i < peerlist.size(); i++){
-				peerlist.get(i).sendimage(obj);
+				peerlist.get(i).sendImage(obj);
 			}
 		}  
 	}
