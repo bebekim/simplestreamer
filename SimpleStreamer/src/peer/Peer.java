@@ -135,13 +135,14 @@ public class Peer implements Runnable {
 			}
 		}
 	}
-	private void sendImage(Object obj){
+	private void sendImage(byte[] frame){
 		/*
 		 * Right now we send the image back to this peer (so you see your own image..)
 		 * What needs to be done is to send this to the other peer (through out stream)
 		 */
-		Image imageMessage = new Image(obj.toString());
-		out.write(imageMessage.ToJSON().toString());
+		Image imageMessage = new Image(frame);
+		String imageStr = imageMessage.ToJSON();
+		out.write(imageStr);
 		out.println();
 
 		//receiveImage(obj);
@@ -158,9 +159,10 @@ public class Peer implements Runnable {
 			String mStr = in.readLine();
 			System.out.println("Something came in...");
 			ProtocolMessage pm = pmFac.FromJSON(mStr);
+			System.out.println(mStr);
 			if (pm.Type().equals("image")) {
 				Image imageMessage = (Image) pm;
-				nobase64_image = imageMessage.Data().getBytes();
+				nobase64_image = imageMessage.Data();
 				decompressed_image = Compressor.decompress(nobase64_image);
 				System.out.println("Image Received...");
 			} else {
@@ -194,7 +196,7 @@ public class Peer implements Runnable {
 	public static void broadcastToPeers(Object obj){
 		synchronized (peerlist) {
 			for (int i = 0; i < peerlist.size(); i++){
-				peerlist.get(i).sendImage(obj);
+				//peerlist.get(i).sendImage(obj);
 			}
 		}  
 	}

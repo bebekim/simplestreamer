@@ -35,9 +35,9 @@ public class Server {
 			
 			byte[] compressed_image = Compressor.compress(picture);
 			
-			
-			
-			Image image = new Image(compressed_image.toString());
+			Image image = new Image(compressed_image);
+			String imageMessage = image.ToJSON();
+			System.out.println(imageMessage);
 
 			while (true) {
 				//serverPeer.out.write(image.ToJSON());

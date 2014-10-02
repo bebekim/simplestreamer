@@ -8,14 +8,14 @@ import org.json.simple.*;
 
 public class Image extends ProtocolMessage {
 
-	String data;
+	byte[] image;
 	
 	public Image() {
 		super();
 	}
 	
-	public Image(Object data) {
-		this.data = data.toString();
+	public Image(byte[] data) {
+		this.image = data;
 	}
 	
 	@Override
@@ -29,7 +29,7 @@ public class Image extends ProtocolMessage {
 			System.exit(-1);
 		}
 		if(obj!=null){
-			this.data = Base64.decodeBase64((String) obj.get("data")).toString();
+			this.image = Base64.decodeBase64((String) obj.get("data"));
 		}
 	}
 
@@ -38,8 +38,8 @@ public class Image extends ProtocolMessage {
 		return "image";
 	}
 	
-	public String Data() {
-		return this.data;
+	public byte[] Data() {
+		return this.image;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -47,7 +47,11 @@ public class Image extends ProtocolMessage {
 	public String ToJSON() {
 		JSONObject obj=new JSONObject();
 		obj.put("type", Type());
-		obj.put("data", data);
+		try {
+			obj.put("data", new String(Base64.encodeBase64(image),"US-ASCII"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		return obj.toJSONString();
 		
 	}
