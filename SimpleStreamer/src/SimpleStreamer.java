@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 import org.kohsuke.args4j.CmdLineException;
 
@@ -45,14 +46,24 @@ public class SimpleStreamer {
 		
 		// Setup sockets and shit
 		
-		// Connect to all remote hosts
+		int peer_no = 1;	// Keep track of peers
+		
+		// Connect to all remote peers (this behaves like a client)
 		for (int i = 0; i < hosts.length; i++) {
-			// remote.connect(hosts[i].hostname,hosts[i].port)
-			Thread new_peer = new Thread(new Peer(hosts[i].hostname, hosts[i].port, i));
-			new_peer.start();
+			Socket socket = null;	// Careful might have to synchronize this
+			try {
+				socket = new Socket(hosts[i].hostname, hosts[i].port);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
+			
+			Thread connect_to_peer = new Thread(new Peer(socket, peer_no, "CLIENT"));
+			connect_to_peer.start();
+			peer_no++;
 		}
 		
 		// Wait indefinitely for new Peers
+		// Wait for peers to connect (this behaves like a server)
 		ServerSocket serversocket = null;
 		Socket socket = null;
 		try {
@@ -60,13 +71,12 @@ public class SimpleStreamer {
 			System.err.println("Server listening for incoming connection!");
 			while (true) {
 				socket = serversocket.accept();
-				
-				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-				BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				System.err.println("Connected.");
-				//out.write("ok man");
-				Thread con = new Thread(new Peer("NEW CLIENT",5252,100));
-				con.start();
+				// Thread new Peer
+				Thread receive_connecting_peer = new Thread(new Peer(socket,peer_no, "SERVER"));
+				receive_connecting_peer.start();
+				
+				peer_no++;
 			}
 			// out.flush();
 		} catch (IOException e) {
@@ -80,7 +90,5 @@ public class SimpleStreamer {
 					e.printStackTrace();
 				}
 		}
-		
-		// Thread new Peer
 	}
 }
