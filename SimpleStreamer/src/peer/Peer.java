@@ -88,7 +88,7 @@ public class Peer implements Runnable {
 		//System.out.println(buf);
 		
 		System.err.println("ok");
-		out.println(buf);
+		out.println();
 		System.err.println("ok");
 		
 		System.out.println("Connected to peer");
@@ -142,6 +142,7 @@ public class Peer implements Runnable {
 		 */
 		Image imageMessage = new Image(obj.toString());
 		out.write(imageMessage.ToJSON().toString());
+		out.println();
 
 		//receiveImage(obj);
 	}

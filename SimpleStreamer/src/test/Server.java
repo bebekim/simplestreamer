@@ -32,11 +32,18 @@ public class Server {
 			PrintWriter out = new PrintWriter(socket.getOutputStream());
 			
 			byte[] picture = Files.readAllBytes(Paths.get("src/test/pocoyo.jpg"));
-			Image image = new Image(picture.toString());
+			
+			byte[] compressed_image = Compressor.compress(picture);
+			
+			
+			
+			Image image = new Image(compressed_image.toString());
 
 			while (true) {
 				//serverPeer.out.write(image.ToJSON());
 				out.write(image.ToJSON());
+				out.println();
+				out.flush();
 				System.out.println("Image Sent...");
 				Thread.sleep(1000);
 			}

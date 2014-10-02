@@ -6,6 +6,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.IOUtils;
+
 public class Compressor{
     public static byte[] compress(byte[] content){
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
