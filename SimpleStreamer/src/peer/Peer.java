@@ -79,8 +79,9 @@ public class Peer implements Runnable {
 		
 		StartStream m = new StartStream("raw", jframewidth, jframeheight);
 		buf = m.ToJSON().toCharArray();
-		out.write(buf);
-		
+		System.err.println("ok");
+		out.println(buf);
+		System.err.println("ok");
 		
 		System.err.println("Connected to peer");
 		
