@@ -53,13 +53,15 @@ public class SimpleStreamer {
 			Socket socket = null;	// Careful might have to synchronize this
 			try {
 				socket = new Socket(hosts[i].hostname, hosts[i].port);
+				Thread connect_to_peer = new Thread(new Peer(socket, peer_no, "CLIENT"));
+				connect_to_peer.start();
+				peer_no++;
 			} catch (IOException e) {
 				e.printStackTrace();
-			}			
-			
-			Thread connect_to_peer = new Thread(new Peer(socket, peer_no, "CLIENT"));
-			connect_to_peer.start();
-			peer_no++;
+			} catch (NegotiationException e) {
+				// Negotiations failed
+				e.printStackTrace();
+			}
 		}
 		
 		// Wait indefinitely for new Peers
@@ -80,6 +82,9 @@ public class SimpleStreamer {
 			}
 			// out.flush();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NegotiationException e) {
+			// Negotiations failed
 			e.printStackTrace();
 		} finally {
 			if (socket != null)
