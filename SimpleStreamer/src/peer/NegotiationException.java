@@ -1,3 +1,4 @@
+package peer;
 // Thrown when problem with negotiations
 
 @SuppressWarnings("serial")

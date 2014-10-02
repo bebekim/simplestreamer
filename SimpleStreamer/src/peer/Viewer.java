@@ -1,3 +1,4 @@
+package peer;
 // Viewer.java
 // Responsible for rendering JFrame windows
 

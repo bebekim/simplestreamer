@@ -1,3 +1,4 @@
+package peer;
 // Peer.java
 // Responsible for communications with a particular peer
 // Is tied to a single Viewer (ie. 1 JFrame per peer)
@@ -72,13 +73,14 @@ public class Peer implements Runnable {
 		
 		char[] buf;
 		
+		// TODO: TEMPORARY, Negotiations (Obtain jframe width/height)
+		jframewidth = 320;
+		jframeheight = 240;
+		
 		StartStream m = new StartStream("raw", jframewidth, jframeheight);
 		buf = m.ToJSON().toCharArray();
 		out.write(buf);
 		
-		// Negotiations (Obtain jframe width/height)
-		jframewidth = 320;
-		jframeheight = 240;
 		
 		System.err.println("Connected to peer");
 		
@@ -116,8 +118,8 @@ public class Peer implements Runnable {
 			//System.err.println("Thread "+peer_no+" reporting!");
 			try {
 				receiveImage();
-				Thread.sleep(100);
-			} catch (InterruptedException | ProtocolException e) {
+				//Thread.sleep(100);
+			} catch (ProtocolException e) {
 				e.printStackTrace();
 				System.err.println("Protocol Exception | Interrupted Exception");
 				System.exit(-1);
@@ -139,19 +141,20 @@ public class Peer implements Runnable {
 	
 	private void receiveImage() throws ProtocolException{
 		// Decompress then render (right now its receiving from this peer
-		
+		System.out.println("Waiting for Incoming Frame...");
 		ProtocolFactory pmFac = new ProtocolFactory();
 		byte[] nobase64_image;
 		byte[] decompressed_image;
 		
 		try {
 			String mStr = in.readLine();
+			System.out.println("Something came in...");
 			ProtocolMessage pm = pmFac.FromJSON(mStr);
-			System.out.println("Received connection from peer");
 			if (pm.Type().equals("image")) {
 				Image imageMessage = (Image) pm;
 				nobase64_image = imageMessage.Data().getBytes();
 				decompressed_image = Compressor.decompress(nobase64_image);
+				System.out.println("Image Received...");
 			} else {
 				throw new ProtocolException("Invalid Protocol Message Received.");
 			}

@@ -1,3 +1,4 @@
+package peer;
 // Webcam.java
 // Responsible for obtaining images from webcam
 // Aware of a list of Peers, will use something like Peer.send()

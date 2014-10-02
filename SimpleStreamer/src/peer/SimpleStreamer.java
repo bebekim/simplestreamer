@@ -1,3 +1,4 @@
+package peer;
 // SimpleStreamer.java
 // Main class, responsible for setting up shit
 
