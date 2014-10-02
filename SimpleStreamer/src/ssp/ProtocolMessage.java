@@ -2,7 +2,7 @@ package ssp;
 
 import org.json.simple.parser.*;
 
-abstract class Message {
+public abstract class ProtocolMessage {
 	
 	protected static final JSONParser parser = new JSONParser();
 	

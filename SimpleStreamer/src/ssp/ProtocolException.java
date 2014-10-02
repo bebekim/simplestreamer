@@ -2,7 +2,7 @@ package ssp;
 
 public class ProtocolException extends Exception {
 
-	public ProtocolException(Exception e) {
-		super(e);
+	public ProtocolException(String string) {
+		super(string);
 	}
 }

@@ -6,12 +6,16 @@ import org.apache.commons.codec.binary.Base64;
 import org.json.simple.*; 
 
 
-public class Image extends Message {
+public class Image extends ProtocolMessage {
 
-	byte[] data;
+	String data;
 	
 	public Image() {
 		super();
+	}
+	
+	public Image(Object data) {
+		this.data = data.toString();
 	}
 	
 	@Override
@@ -25,7 +29,7 @@ public class Image extends Message {
 			System.exit(-1);
 		}
 		if(obj!=null){
-			this.data = Base64.decodeBase64((String) obj.get("bytes"));
+			this.data = Base64.decodeBase64((String) obj.get("data")).toString();
 		}
 	}
 
@@ -34,7 +38,7 @@ public class Image extends Message {
 		return "image";
 	}
 	
-	public byte[] Data() {
+	public String Data() {
 		return this.data;
 	}
 
@@ -42,13 +46,8 @@ public class Image extends Message {
 	@Override
 	public String ToJSON() {
 		JSONObject obj=new JSONObject();
-		try {
-			obj.put("type", Type());
-			obj.put("data", new String(Base64.encodeBase64(this.data),"US-ASCII"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			System.exit(-1);
-		}
+		obj.put("type", Type());
+		obj.put("data", data);
 		return obj.toJSONString();
 	}
 

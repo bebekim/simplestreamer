@@ -2,7 +2,7 @@ package ssp;
 
 import org.json.simple.JSONObject;
 
-public class StopStream extends Message {
+public class StopStream extends ProtocolMessage {
 	
 	public StopStream() {
 		super();

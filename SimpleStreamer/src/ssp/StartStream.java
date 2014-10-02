@@ -2,7 +2,7 @@ package ssp;
 
 import org.json.simple.*;
 
-public class StartStream extends Message {
+public class StartStream extends ProtocolMessage {
 
 	private String format;
 	private int width;

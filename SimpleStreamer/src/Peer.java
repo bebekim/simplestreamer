@@ -14,6 +14,8 @@ import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 
+import ssp.*;
+
 public class Peer implements Runnable {
 	
 	// Global list of peers
@@ -67,26 +69,44 @@ public class Peer implements Runnable {
 	}
 	
 	private void clientNegotiation() throws NegotiationException {
-		System.err.println("Connected to peer");
-		out.println("Hello From Client");
+		
+		char[] buf;
+		
+		StartStream m = new StartStream("raw", jframewidth, jframeheight);
+		buf = m.ToJSON().toCharArray();
+		out.write(buf);
 		
 		// Negotiations (Obtain jframe width/height)
 		jframewidth = 320;
 		jframeheight = 240;
 		
-		//out.flush();
+		System.err.println("Connected to peer");
+		
+		out.flush();
 
 		//String str = in.readLine();
 		//System.out.println("Server:" + str);
 	}
 	
 	private void serverNegotiation() throws NegotiationException {
-		System.err.println("Received connection from peer");
-		out.println("Hello From Server");
 		
-		// Negotiations (Obtain jframe width/height)
-		jframewidth = 320;
-		jframeheight = 240;
+		ProtocolFactory pmFac = new ProtocolFactory();
+		
+		try {
+			String mStr = in.readLine();
+			ProtocolMessage pm = pmFac.FromJSON(mStr);
+			System.out.println("Received connection from peer");
+			if (pm.Type().equals("startstream")) {
+				StartStream startMessage = (StartStream) pm;
+				this.jframeheight = startMessage.Height();
+				this.jframewidth = startMessage.Width();
+				System.out.println("Negotiation from Peer Successful.");
+			} else {
+				throw new NegotiationException("Invalid Negotiation Received");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -108,18 +128,36 @@ public class Peer implements Runnable {
 		 * Right now we send the image back to this peer (so you see your own image..)
 		 * What needs to be done is to send this to the other peer (through out stream)
 		 */
-		
-		receiveImage(obj);
+		Image imageMessage = new Image(obj.toString());
+		out.write(imageMessage.ToJSON().toString());
+		out.flush();
+
+		//receiveImage(obj);
 	}
 	
-	private void receiveImage(Object obj){
+	private void receiveImage(Object obj) throws ProtocolException{
 		// Decompress then render (right now its receiving from this peer
 		
-		byte[] nobase64_image = Base64.decodeBase64((byte[]) obj);
-		/* Decompress the image */
-		byte[] decompressed_image = Compressor.decompress(nobase64_image);
-		/* Give the raw image bytes to the viewer. */
-		viewer.ViewerInput(decompressed_image);
+		ProtocolFactory pmFac = new ProtocolFactory();
+		byte[] nobase64_image;
+		byte[] decompressed_image;
+		
+		try {
+			String mStr = in.readLine();
+			ProtocolMessage pm = pmFac.FromJSON(mStr);
+			System.out.println("Received connection from peer");
+			if (pm.Type().equals("image")) {
+				Image imageMessage = (Image) pm;
+				nobase64_image = imageMessage.Data().getBytes();
+				decompressed_image = Compressor.decompress(nobase64_image);
+			} else {
+				throw new ProtocolException("Invalid Protocol Message Received.");
+			}
+			viewer.ViewerInput(decompressed_image);
+		} catch (IOException e) {
+			//TODO: @JunMin, you might want to move this to throwables too to handle this error elsewhere. 
+			e.printStackTrace();
+		}
 	}
 	
 	// Methods to handle peerlist (threadsafe)
@@ -150,8 +188,8 @@ public class Peer implements Runnable {
 	
 	@SuppressWarnings("serial")
 	class NegotiationException extends Exception {
-		NegotiationException(Exception e) {
-			super(e);
+		NegotiationException(String string) {
+			super(string);
 		}
 	}
 }
