@@ -72,8 +72,8 @@ public class Webcam implements Runnable {
 			//viewer.ViewerInput(decompressed_image);
 			
 			//System.err.println("IMAGE : " + decompressed_image.length);
-		} while (++i < n);
+		} while (true);
 
-		grabber.stopSession();	
+		//grabber.stopSession();	
 	}
 }

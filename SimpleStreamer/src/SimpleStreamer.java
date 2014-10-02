@@ -1,7 +1,10 @@
 // SimpleStreamer.java
 // Main class, responsible for setting up shit
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -58,8 +61,10 @@ public class SimpleStreamer {
 			while (true) {
 				socket = serversocket.accept();
 				
-
+				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+				BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				System.err.println("Connected.");
+				//out.write("ok man");
 				Thread con = new Thread(new Peer("NEW CLIENT",5252,100));
 				con.start();
 			}
