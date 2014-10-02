@@ -115,10 +115,12 @@ public class Peer implements Runnable {
 		while (true) {
 			//System.err.println("Thread "+peer_no+" reporting!");
 			try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+				receiveImage();
+				Thread.sleep(100);
+			} catch (InterruptedException | ProtocolException e) {
 				e.printStackTrace();
+				System.err.println("Protocol Exception | Interrupted Exception");
+				System.exit(-1);
 			}
 		}
 	}
@@ -135,7 +137,7 @@ public class Peer implements Runnable {
 		//receiveImage(obj);
 	}
 	
-	private void receiveImage(Object obj) throws ProtocolException{
+	private void receiveImage() throws ProtocolException{
 		// Decompress then render (right now its receiving from this peer
 		
 		ProtocolFactory pmFac = new ProtocolFactory();
