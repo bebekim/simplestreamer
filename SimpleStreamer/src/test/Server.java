@@ -25,26 +25,23 @@ public class Server {
 		try {
 			int port = 6262;
 			serverSocket = new ServerSocket(port);
-			socket = serverSocket.accept();
-			
-			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-			
+			socket = serverSocket.accept();			
 			System.out.println("Server's listening...");
-			Peer serverPeer = new Peer(socket, 2, "SERVER");
+			//Peer serverPeer = new Peer(socket, 2, "SERVER");
+			
+			PrintWriter out = new PrintWriter(socket.getOutputStream());
 			
 			byte[] picture = Files.readAllBytes(Paths.get("src/test/pocoyo.jpg"));
 			Image image = new Image(picture.toString());
 
 			while (true) {
+				//serverPeer.out.write(image.ToJSON());
 				out.write(image.ToJSON());
-				out.flush();
 				System.out.println("Image Sent...");
 				Thread.sleep(1000);
 			}
 			
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NegotiationException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();

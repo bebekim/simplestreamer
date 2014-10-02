@@ -24,8 +24,11 @@ public class Peer implements Runnable {
 	
 	// Stuff to Talk to peer
 	Socket socket;
-	BufferedReader in;
-	PrintWriter out;
+	
+	//TODO: Temporary PUBLIC visibility for IO.
+	
+	public BufferedReader in;
+	public PrintWriter out;
 	
 	int peer_no; // Thread debugging purposes
 	
@@ -46,6 +49,7 @@ public class Peer implements Runnable {
 		// Set up network stuff
 		this.socket = socket;
 		
+		System.out.println("Creating IO Buffers for TCP Stream");
 		try {
 			in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 			out = new PrintWriter(this.socket.getOutputStream(), true);
@@ -53,6 +57,7 @@ public class Peer implements Runnable {
 			e.printStackTrace();
 		}
 		
+		System.out.println("Starting Negotiation Phase");
 		// CLIENT is when Peer initiates connection to other Peer
 		if (type.equals("CLIENT")){
 			clientNegotiation();
@@ -80,24 +85,25 @@ public class Peer implements Runnable {
 		StartStream m = new StartStream("raw", jframewidth, jframeheight);
 		buf = m.ToJSON().toCharArray();
 		out.write(buf);
+		System.out.println(buf);
 		
 		
-		System.err.println("Connected to peer");
+		System.out.println("Connected to peer");
 		
-		out.flush();
-
 		//String str = in.readLine();
 		//System.out.println("Server:" + str);
 	}
 	
 	private void serverNegotiation() throws NegotiationException {
 		
+		System.out.println("Waiting for Client to Negotiate");
+		
 		ProtocolFactory pmFac = new ProtocolFactory();
 		
 		try {
 			String mStr = in.readLine();
-			ProtocolMessage pm = pmFac.FromJSON(mStr);
 			System.out.println("Received connection from peer");
+			ProtocolMessage pm = pmFac.FromJSON(mStr);
 			if (pm.Type().equals("startstream")) {
 				StartStream startMessage = (StartStream) pm;
 				this.jframeheight = startMessage.Height();
@@ -126,7 +132,6 @@ public class Peer implements Runnable {
 			}
 		}
 	}
-	
 	private void sendImage(Object obj){
 		/*
 		 * Right now we send the image back to this peer (so you see your own image..)
@@ -134,7 +139,6 @@ public class Peer implements Runnable {
 		 */
 		Image imageMessage = new Image(obj.toString());
 		out.write(imageMessage.ToJSON().toString());
-		out.flush();
 
 		//receiveImage(obj);
 	}

@@ -49,6 +49,7 @@ public class Image extends ProtocolMessage {
 		obj.put("type", Type());
 		obj.put("data", data);
 		return obj.toJSONString();
+		
 	}
 
 }
