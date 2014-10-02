@@ -34,7 +34,7 @@ public class Peer implements Runnable {
 	private int jframewidth;
 	private int jframeheight;
 	
-	public Peer(Socket socket, int peer_no, String type) {
+	public Peer(Socket socket, int peer_no, String type) throws NegotiationException {
 		
 		this.hostname = socket.getInetAddress().getCanonicalHostName();
 		this.port = socket.getPort();
@@ -66,7 +66,7 @@ public class Peer implements Runnable {
 		addPeer(this);
 	}
 	
-	private void clientNegotiation(){
+	private void clientNegotiation() throws NegotiationException {
 		System.err.println("Connected to peer");
 		out.println("Hello From Client");
 		
@@ -80,7 +80,7 @@ public class Peer implements Runnable {
 		//System.out.println("Server:" + str);
 	}
 	
-	private void serverNegotiation(){
+	private void serverNegotiation() throws NegotiationException {
 		System.err.println("Received connection from peer");
 		out.println("Hello From Server");
 		
@@ -146,5 +146,12 @@ public class Peer implements Runnable {
 				peerlist.get(i).sendImage(obj);
 			}
 		}  
+	}
+	
+	@SuppressWarnings("serial")
+	class NegotiationException extends Exception {
+		NegotiationException(Exception e) {
+			super(e);
+		}
 	}
 }
