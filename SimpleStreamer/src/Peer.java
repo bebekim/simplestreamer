@@ -147,11 +147,4 @@ public class Peer implements Runnable {
 			}
 		}  
 	}
-	
-	@SuppressWarnings("serial")
-	class NegotiationException extends Exception {
-		NegotiationException(Exception e) {
-			super(e);
-		}
-	}
 }
