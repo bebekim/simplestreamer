@@ -139,6 +139,7 @@ public class Peer implements Runnable {
 		}
 	}
 	
+	// Called from Webcam.java everything frame generated..
 	public static void broadcastToPeers(Object obj){
 		synchronized (peerlist) {
 			for (int i = 0; i < peerlist.size(); i++){
