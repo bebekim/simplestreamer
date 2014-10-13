@@ -141,6 +141,12 @@ public class Peer implements Runnable {
 		} catch (IOException e) {
 			System.err.println("Socket Error with remote host "+socket.getInetAddress().getCanonicalHostName());
 		} finally {
+			// Stop stream here?!?!
+			// Check socket null and shit
+			
+			//sender.stopStreaming();
+			// Handle in receiveImage()
+			
 			// Close socket
 			if (socket != null) {
 				try {

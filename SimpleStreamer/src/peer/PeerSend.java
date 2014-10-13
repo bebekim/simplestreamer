@@ -16,6 +16,8 @@ public class PeerSend implements Runnable {
 	private int rate;
 	private volatile byte[] image_buffer = null; // Current image to be sent, need to synchronize this
 	
+	private volatile boolean stopstream = false;
+	
 	// Temp
 	private Viewer viewer;
 	
@@ -28,7 +30,7 @@ public class PeerSend implements Runnable {
 	
 	@Override
 	public void run() {
-		while (true) {
+		while (!stopstream) {
 			try {
 				if (image_buffer != null) {
 					sendImage(image_buffer);
@@ -63,5 +65,9 @@ public class PeerSend implements Runnable {
 		byte[] image = image_buffer;
 		image_buffer = null;
 		return image;
+	}
+	
+	public void stopStreaming(){
+		stopstream = true;
 	}
 }
