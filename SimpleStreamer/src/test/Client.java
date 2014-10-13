@@ -24,19 +24,7 @@ public class Client {
 			
 			try {
 				Peer clientPeer = new Peer(socket, 100,	320, 240, 8, "CLIENT");
-				
-				while (true) {
-					// some shit
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-						
-						
-				//clientPeer.run();
+				clientPeer.run();
 				
 			} catch (NegotiationException e) {
 				System.err.println("Client Negotiation Failed.");

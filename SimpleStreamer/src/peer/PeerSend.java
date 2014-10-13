@@ -36,7 +36,7 @@ public class PeerSend implements Runnable {
 				} else {
 					System.err.println("Image buffer Empty!");
 				}
-				Thread.sleep(10*rate);
+				Thread.sleep(rate);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -45,29 +45,17 @@ public class PeerSend implements Runnable {
 	}
 	
 	private void sendImage(byte[] image) {
-		// Reuse code in Peer.sendImage();
-		byte[] nobase64_image = Base64.decodeBase64(image);
-		byte[] decompressed_image = Compressor.decompress(nobase64_image);
-		viewer.ViewerInput(decompressed_image);
+		
+		// Send image json
+		Image imagejson = new Image(image);
+		char[] buf = imagejson.ToJSON().toCharArray();
+		out.println(buf);
+
+		//byte[] nobase64_image = Base64.decodeBase64(image);
+		//byte[] decompressed_image = Compressor.decompress(nobase64_image);
+		//viewer.ViewerInput(decompressed_image);
+		
 	}
-	
-	/*
-	  
-	  
-	 	private void sendImage(byte[] frame){
-
-		 // Right now we send the image back to this peer (so you see your own image..)
-		 // What needs to be done is to send this to the other peer (through out stream)
-
-		Image imageMessage = new Image(frame);
-		String imageStr = imageMessage.ToJSON();
-		out.write(imageStr);
-		out.println();
-
-		//receiveImage(obj);
-	}
-	  
-	 */
 	
 	// For Webcam to broadcast
 	public void addImageToBuffer(byte[] image){

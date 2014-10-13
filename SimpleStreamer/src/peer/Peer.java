@@ -158,7 +158,7 @@ public class Peer implements Runnable {
 			ProtocolMessage pm = pmFac.FromJSON(mStr);
 			if (pm.Type().equals("image")) {
 				Image imageMessage = (Image) pm;
-				nobase64_image = imageMessage.Data();
+				nobase64_image = Base64.decodeBase64(imageMessage.Data());
 				decompressed_image = Compressor.decompress(nobase64_image);
 				System.err.println("Image Received...");
 			} else {
