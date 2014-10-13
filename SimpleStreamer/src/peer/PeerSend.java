@@ -49,7 +49,8 @@ public class PeerSend implements Runnable {
 		// Send image json
 		Image imagejson = new Image(image);
 		char[] buf = imagejson.ToJSON().toCharArray();
-		out.println(buf);		
+		out.println(buf);
+		out.flush();
 	}
 	
 	// For Webcam to broadcast

@@ -103,6 +103,7 @@ public class Peer implements Runnable {
 		StartStream m = new StartStream("raw", width, height);
 		char[] buf = m.ToJSON().toCharArray();
 		out.println(buf);
+		out.flush();
 	}
 	
 	// Receive StartStream
