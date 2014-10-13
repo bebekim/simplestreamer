@@ -24,9 +24,7 @@ public class Peer implements Runnable {
 	
 	// Stuff to Talk to peer
 	Socket socket;
-	
-	//TODO: Temporary PUBLIC visibility for IO.
-	
+
 	private BufferedReader in;
 	private PrintWriter out;
 	
@@ -140,35 +138,34 @@ public class Peer implements Runnable {
 				e.printStackTrace();
 				System.err.println("Protocol Exception | Interrupted Exception");
 				System.exit(-1);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				System.err.println("Socket Error with remote host "+socket.getInetAddress().getCanonicalHostName());
+				break;
 			}
 		}
 	}
 	
-	private void receiveImage() throws ProtocolException{
+	private void receiveImage() throws ProtocolException, IOException{
 		// Decompress then render (right now its receiving from this peer
 		//System.err.println("Waiting for Image..");
 		ProtocolFactory pmFac = new ProtocolFactory();
 		byte[] nobase64_image;
 		byte[] decompressed_image;
 		
-		try {
-			String mStr = in.readLine();
-			//System.err.println("Something came in...");
-			//System.err.println("Received Line : "+mStr);
-			ProtocolMessage pm = pmFac.FromJSON(mStr);
-			if (pm.Type().equals("image")) {
-				Image imageMessage = (Image) pm;
-				nobase64_image = Base64.decodeBase64(imageMessage.Data());
-				decompressed_image = Compressor.decompress(nobase64_image);
-				//System.err.println("Image Received...");
-			} else {
-				throw new ProtocolException("Invalid Protocol Message Received.");
-			}
-			viewer.ViewerInput(decompressed_image);
-		} catch (IOException e) {
-			//TODO: @JunMin, you might want to move this to throwables too to handle this error elsewhere. 
-			e.printStackTrace();
+		String mStr = in.readLine();
+		//System.err.println("Something came in...");
+		//System.err.println("Received Line : "+mStr);
+		ProtocolMessage pm = pmFac.FromJSON(mStr);
+		if (pm.Type().equals("image")) {
+			Image imageMessage = (Image) pm;
+			nobase64_image = Base64.decodeBase64(imageMessage.Data());
+			decompressed_image = Compressor.decompress(nobase64_image);
+			//System.err.println("Image Received...");
+		} else {
+			throw new ProtocolException("Invalid Protocol Message Received.");
 		}
+		viewer.ViewerInput(decompressed_image);
 	}
 	
 	// Methods to handle peerlist (threadsafe)
