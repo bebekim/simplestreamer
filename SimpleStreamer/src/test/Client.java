@@ -23,7 +23,7 @@ public class Client {
 			socket = new Socket(host, port);
 			
 			try {
-				Peer clientPeer = new Peer(socket, 100, 8, "CLIENT");
+				Peer clientPeer = new Peer(socket, 100,	320, 240, 8, "CLIENT");
 				
 				while (true) {
 					// some shit

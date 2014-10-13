@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 
 import org.apache.commons.codec.binary.Base64;
 
+import ssp.Image;
+
 // PeerSend.java
 // Thread runs alongside a Peer Thread
 // Sends stuff to the out stream.. make sure to consider synchronization of that stream
@@ -26,7 +28,6 @@ public class PeerSend implements Runnable {
 	
 	@Override
 	public void run() {
-		
 		while (true) {
 			try {
 				if (image_buffer != null) {
@@ -49,6 +50,24 @@ public class PeerSend implements Runnable {
 		byte[] decompressed_image = Compressor.decompress(nobase64_image);
 		viewer.ViewerInput(decompressed_image);
 	}
+	
+	/*
+	  
+	  
+	 	private void sendImage(byte[] frame){
+
+		 // Right now we send the image back to this peer (so you see your own image..)
+		 // What needs to be done is to send this to the other peer (through out stream)
+
+		Image imageMessage = new Image(frame);
+		String imageStr = imageMessage.ToJSON();
+		out.write(imageStr);
+		out.println();
+
+		//receiveImage(obj);
+	}
+	  
+	 */
 	
 	// For Webcam to broadcast
 	public void addImageToBuffer(byte[] image){
