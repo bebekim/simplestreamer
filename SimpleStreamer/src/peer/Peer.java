@@ -146,15 +146,15 @@ public class Peer implements Runnable {
 	
 	private void receiveImage() throws ProtocolException{
 		// Decompress then render (right now its receiving from this peer
-		System.err.println("Waiting for Image..");
+		//System.err.println("Waiting for Image..");
 		ProtocolFactory pmFac = new ProtocolFactory();
 		byte[] nobase64_image;
 		byte[] decompressed_image;
 		
 		try {
 			String mStr = in.readLine();
-			System.err.println("Something came in...");
-			System.err.println("Received Line : "+mStr);
+			//System.err.println("Something came in...");
+			//System.err.println("Received Line : "+mStr);
 			ProtocolMessage pm = pmFac.FromJSON(mStr);
 			if (pm.Type().equals("image")) {
 				Image imageMessage = (Image) pm;

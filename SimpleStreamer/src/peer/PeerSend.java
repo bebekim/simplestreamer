@@ -32,9 +32,9 @@ public class PeerSend implements Runnable {
 			try {
 				if (image_buffer != null) {
 					sendImage(image_buffer);
-					System.err.println("Not Empty!");
+					//System.err.println("Not Empty!");
 				} else {
-					System.err.println("Image buffer Empty!");
+					//System.err.println("Image buffer Empty!");
 				}
 				Thread.sleep(rate);
 			} catch (InterruptedException e) {
