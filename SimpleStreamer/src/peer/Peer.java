@@ -129,19 +129,26 @@ public class Peer implements Runnable {
 	@Override
 	public void run() {
 		// Peer infinite loop used to listen to in stream?
-		while (true) {
-			//System.err.println("Thread "+peer_no+" reporting!");
-			try {
+		try {
+			while (true) {
 				receiveImage();
-				//Thread.sleep(100);
-			} catch (ProtocolException e) {
-				e.printStackTrace();
-				System.err.println("Protocol Exception | Interrupted Exception");
-				System.exit(-1);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				System.err.println("Socket Error with remote host "+socket.getInetAddress().getCanonicalHostName());
-				break;
+			}			
+		} catch (ProtocolException e) {
+			e.printStackTrace();
+			System.err.println("Protocol Exception | Interrupted Exception");
+			System.exit(-1);
+		} catch (IOException e) {
+			System.err.println("Socket Error with remote host "+socket.getInetAddress().getCanonicalHostName());
+		} finally {
+			// Close socket
+			if (socket != null) {
+				try {
+					socket.close();
+					System.err.println("Socket Closed!");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
 			}
 		}
 	}
