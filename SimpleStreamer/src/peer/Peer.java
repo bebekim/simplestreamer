@@ -27,8 +27,8 @@ public class Peer implements Runnable {
 	
 	//TODO: Temporary PUBLIC visibility for IO.
 	
-	public BufferedReader in;
-	public PrintWriter out;
+	private BufferedReader in;
+	private PrintWriter out;
 	
 	int peer_no; // Thread debugging purposes
 	
@@ -40,7 +40,9 @@ public class Peer implements Runnable {
 	private int jframewidth;
 	private int jframeheight;
 	
-	public Peer(Socket socket, int peer_no, String type) throws NegotiationException {
+	private PeerSend sender;
+	
+	public Peer(Socket socket, int rate, int peer_no, String type) throws NegotiationException {
 		
 		this.hostname = socket.getInetAddress().getCanonicalHostName();
 		this.port = socket.getPort();
@@ -49,7 +51,6 @@ public class Peer implements Runnable {
 		// Set up network stuff
 		this.socket = socket;
 		
-		System.out.println("Creating IO Buffers for TCP Stream");
 		try {
 			in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 			out = new PrintWriter(this.socket.getOutputStream(), true);
@@ -57,7 +58,7 @@ public class Peer implements Runnable {
 			e.printStackTrace();
 		}
 		
-		System.out.println("Starting Negotiation Phase");
+		System.err.println("Begin Negotiations");
 		// CLIENT is when Peer initiates connection to other Peer
 		if (type.equals("CLIENT")){
 			clientNegotiation();
@@ -65,9 +66,15 @@ public class Peer implements Runnable {
 		} else if (type.equals("SERVER")){
 			serverNegotiation();
 		}
-
+		System.err.println("End Negotiations");
+		
 		// Set up Viewer (jframewidth/jframeheight obtained from negotiations)
 		viewer = new Viewer(jframewidth,jframeheight,hostname,peer_no);
+		
+		// Set up Sender
+		sender = new PeerSend(out, rate, viewer); // temporary viewer
+		Thread sendthread = new Thread(sender);
+		sendthread.start();
 		
 		// Add newly created peer (this) to peerlist
 		// Always do this at end of constructor.. else null ptr from Viewer
@@ -78,20 +85,17 @@ public class Peer implements Runnable {
 		
 		char[] buf;
 		
+		System.err.println("Client attempting Neogotiations");
+		
 		// TODO: TEMPORARY, Negotiations (Obtain jframe width/height)
 		jframewidth = 320;
 		jframeheight = 240;
 		
 		StartStream m = new StartStream("raw", jframewidth, jframeheight);
 		buf = m.ToJSON().toCharArray();
-		//out.write(buf);
-		//System.out.println(buf);
-		
-		System.err.println("ok");
-		out.println();
-		System.err.println("ok");
-		
-		System.out.println("Connected to peer");
+
+		out.println(buf);
+		System.err.println("Client sent StartStream");
 		
 		//String str = in.readLine();
 		//System.out.println("Server:" + str);
@@ -99,19 +103,18 @@ public class Peer implements Runnable {
 	
 	private void serverNegotiation() throws NegotiationException {
 		
-		System.out.println("Waiting for Client to Negotiate");
+		System.err.println("Waiting for Client to Negotiate");
 		
 		ProtocolFactory pmFac = new ProtocolFactory();
 		
 		try {
 			String mStr = in.readLine();
-			System.out.println("Received connection from peer");
+			System.err.println("Received Line: " + mStr);
 			ProtocolMessage pm = pmFac.FromJSON(mStr);
 			if (pm.Type().equals("startstream")) {
 				StartStream startMessage = (StartStream) pm;
 				this.jframeheight = startMessage.Height();
 				this.jframewidth = startMessage.Width();
-				System.out.println("Negotiation from Peer Successful.");
 			} else {
 				throw new NegotiationException("Invalid Negotiation Received");
 			}
@@ -135,6 +138,8 @@ public class Peer implements Runnable {
 			}
 		}
 	}
+	
+	
 	private void sendImage(byte[] frame){
 		/*
 		 * Right now we send the image back to this peer (so you see your own image..)
@@ -150,16 +155,16 @@ public class Peer implements Runnable {
 	
 	private void receiveImage() throws ProtocolException{
 		// Decompress then render (right now its receiving from this peer
-		System.out.println("Waiting for Incoming Frame...");
+		System.err.println("Waiting for Image..");
 		ProtocolFactory pmFac = new ProtocolFactory();
 		byte[] nobase64_image;
 		byte[] decompressed_image;
 		
 		try {
 			String mStr = in.readLine();
-			System.out.println("Something came in...");
+			System.err.println("Something came in...");
+			System.err.println("Received Line : "+mStr);
 			ProtocolMessage pm = pmFac.FromJSON(mStr);
-			System.out.println(mStr);
 			if (pm.Type().equals("image")) {
 				Image imageMessage = (Image) pm;
 				nobase64_image = imageMessage.Data();
@@ -196,7 +201,7 @@ public class Peer implements Runnable {
 	public static void broadcastToPeers(Object obj){
 		synchronized (peerlist) {
 			for (int i = 0; i < peerlist.size(); i++){
-				//peerlist.get(i).sendImage(obj);
+				peerlist.get(i).sender.addImageToBuffer((byte[]) obj);
 			}
 		}  
 	}

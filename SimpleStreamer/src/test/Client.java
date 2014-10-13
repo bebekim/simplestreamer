@@ -23,8 +23,20 @@ public class Client {
 			socket = new Socket(host, port);
 			
 			try {
-				Peer clientPeer = new Peer(socket, 1, "CLIENT");
-				clientPeer.run();
+				Peer clientPeer = new Peer(socket, 100, 8, "CLIENT");
+				
+				while (true) {
+					// some shit
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+						
+						
+				//clientPeer.run();
 				
 			} catch (NegotiationException e) {
 				System.err.println("Client Negotiation Failed.");
@@ -37,7 +49,7 @@ public class Client {
 			if (socket != null) {
 				try {
 					socket.close();
-					System.out.println("Client disconneted.");
+					System.err.println("Client Disconnected.");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

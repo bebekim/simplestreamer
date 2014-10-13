@@ -54,7 +54,7 @@ public class SimpleStreamer {
 			Socket socket = null;	// Careful might have to synchronize this
 			try {
 				socket = new Socket(hosts[i].hostname, hosts[i].port);
-				Thread connect_to_peer = new Thread(new Peer(socket, peer_no, "CLIENT"));
+				Thread connect_to_peer = new Thread(new Peer(socket, rate, peer_no, "CLIENT"));
 				connect_to_peer.start();
 				peer_no++;
 			} catch (IOException e) {
@@ -76,7 +76,7 @@ public class SimpleStreamer {
 				socket = serversocket.accept();
 				System.err.println("Connected.");
 				// Thread new Peer
-				Thread receive_connecting_peer = new Thread(new Peer(socket,peer_no, "SERVER"));
+				Thread receive_connecting_peer = new Thread(new Peer(socket, rate, peer_no, "SERVER"));
 				receive_connecting_peer.start();
 				
 				peer_no++;
