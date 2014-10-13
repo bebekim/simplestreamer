@@ -160,7 +160,7 @@ public class Peer implements Runnable {
 				Image imageMessage = (Image) pm;
 				nobase64_image = Base64.decodeBase64(imageMessage.Data());
 				decompressed_image = Compressor.decompress(nobase64_image);
-				System.err.println("Image Received...");
+				//System.err.println("Image Received...");
 			} else {
 				throw new ProtocolException("Invalid Protocol Message Received.");
 			}
