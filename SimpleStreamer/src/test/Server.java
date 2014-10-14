@@ -31,7 +31,7 @@ public class Server {
 			
 			PrintWriter out = new PrintWriter(socket.getOutputStream());
 			
-			byte[] picture = Files.readAllBytes(Paths.get("src/test/pocoyo.jpg"));
+			byte[] picture = Files.readAllBytes(Paths.get("src/test/pix.ari"));
 			
 			byte[] compressed_image = Compressor.compress(picture);
 			

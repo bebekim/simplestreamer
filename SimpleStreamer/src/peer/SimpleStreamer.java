@@ -65,6 +65,10 @@ public class SimpleStreamer {
 			}
 		}
 		
+		// Set up input capture
+		Thread capture_input = new Thread(new InputCapture());
+		capture_input.start();
+		
 		// Wait indefinitely for new Peers
 		// Wait for peers to connect (this behaves like a server)
 		ServerSocket serversocket = null;

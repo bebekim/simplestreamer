@@ -41,7 +41,7 @@ public class Peer implements Runnable {
 	private PeerSend sender;
 	private Thread senderthread;
 	
-	private volatile boolean stopstream = false;
+	private volatile boolean peerstopstream = false;
 	
 	public Peer(Socket socket, int rate, int width, int height, int peer_no, String type) throws NegotiationException {
 		
@@ -134,9 +134,9 @@ public class Peer implements Runnable {
 	public void run() {
 		// Peer infinite loop used to listen to in stream?
 		try {
-			while (!stopstream) {
+			while (!peerstopstream) {
 				receiveMessage();
-			}			
+			}
 		} catch (ProtocolException e) {
 			e.printStackTrace();
 			System.err.println("Protocol Exception | Interrupted Exception");
@@ -144,6 +144,8 @@ public class Peer implements Runnable {
 		} catch (IOException e) {
 			System.err.println("Socket Error with remote host "+socket.getInetAddress().getCanonicalHostName());
 		} finally {
+			
+			System.err.println("Exited stopstream loop");
 			
 			// Stop streaming
 			sender.stopStreaming();
@@ -162,15 +164,7 @@ public class Peer implements Runnable {
 			// If any problems..
 			// Close socket
 			if (socket != null) {
-
-				sendStopStream();
-				try {
-					// This is not finished.. what if we keep receiving images?
-					receiveStopStream();
-				} catch (ProtocolException e1) {
-					e1.printStackTrace();
-				}
-				
+				// maybe handle stopstream
 				try {
 					socket.close();
 					System.err.println("Socket Closed!");
@@ -219,19 +213,22 @@ public class Peer implements Runnable {
 		if (pm.Type().equals("image")) {
 			handleImage(pm);
 		} else if (pm.Type().equals("stopstream")) {
-			handleStopStream();
+			System.err.println("Received Stop Stream");
+			if (!peerstopstream) { // only handle if not forced stop)
+				handleStopStream();
+			} else {
+				System.err.println("Forced StopStream");
+			}
 		} else {
 			throw new ProtocolException("Invalid Protocol Message Received.");
 		}
 	}
 	
 	private void handleStopStream() {
-		
-		System.err.println("Received Stop Stream");
-		stopstream = true;
-		// Reply with StopStream
+		System.err.println("Non-Forced StopStream");
+		peerstopstream = true;
+		System.err.println("Sending StopStream");
 		sendStopStream();
-		System.err.println("Sent Stop Stream");
 	}
 	
 	private void handleImage(ProtocolMessage pm) throws ProtocolException, IOException{
@@ -252,7 +249,7 @@ public class Peer implements Runnable {
 	}
 	
 	// Methods to handle peerlist (threadsafe)
-	private static void addPeer(Peer peer){
+	private static void addPeer(Peer peer) {
 		synchronized (peerlist) {
 			// Add peer
 			peerlist.add(peer);
@@ -261,7 +258,7 @@ public class Peer implements Runnable {
 	}
 	
 	// Probably call this from some exception?
-	private static void removePeer(Peer peer){
+	private static void removePeer(Peer peer) {
 		synchronized (peerlist) {
 			// Remove peer
 			peerlist.remove(peer);
@@ -270,11 +267,26 @@ public class Peer implements Runnable {
 	}
 	
 	// Called from Webcam.java everything frame generated..
-	public static void broadcastToPeers(Object obj){
+	public static void broadcastToPeers(Object obj) {
 		synchronized (peerlist) {
 			for (int i = 0; i < peerlist.size(); i++){
 				peerlist.get(i).sender.addImageToBuffer((byte[]) obj);
 			}
 		}  
+	}
+	
+	public static void broadcastStopStream() {
+		synchronized (peerlist) {
+			for (int i = 0; i < peerlist.size(); i++){
+				peerlist.get(i).stopStreaming();
+			}
+		}
+	}
+	
+	private void stopStreaming() {
+		System.err.println("Forcing StopStream");
+		peerstopstream = true;
+		System.err.println("Sending StopStream");
+		sendStopStream();
 	}
 }
