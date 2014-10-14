@@ -39,6 +39,7 @@ public class Peer implements Runnable {
 	private int jframeheight; // differs from 'height' which is used to send
 	
 	private PeerSend sender;
+	private Thread senderthread;
 	
 	public Peer(Socket socket, int rate, int width, int height, int peer_no, String type) throws NegotiationException {
 		
@@ -71,8 +72,8 @@ public class Peer implements Runnable {
 		
 		// Set up Sender
 		sender = new PeerSend(out, rate, viewer); // temporary viewer
-		Thread sendthread = new Thread(sender);
-		sendthread.start();
+		senderthread = new Thread(sender);
+		senderthread.start();
 		
 		// Add newly created peer (this) to peerlist
 		// Always do this at end of constructor.. else null ptr from Viewer
@@ -132,7 +133,7 @@ public class Peer implements Runnable {
 		// Peer infinite loop used to listen to in stream?
 		try {
 			while (true) {
-				receiveImage();
+				receiveMessage();
 			}			
 		} catch (ProtocolException e) {
 			e.printStackTrace();
@@ -141,44 +142,101 @@ public class Peer implements Runnable {
 		} catch (IOException e) {
 			System.err.println("Socket Error with remote host "+socket.getInetAddress().getCanonicalHostName());
 		} finally {
-			// Stop stream here?!?!
-			// Check socket null and shit
 			
-			//sender.stopStreaming();
-			// Handle in receiveImage()
+			// Stop streaming
+			sender.stopStreaming();
+			// Wait for sender thread to end
+			try {
+				senderthread.join();
+			} catch (InterruptedException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			System.err.println("Sender Thread Ended");
 			
+			// Close viewer
+			viewer.close();
+			
+			// If any problems..
 			// Close socket
 			if (socket != null) {
+
+				sendStopStream();
+				try {
+					// This is not finished.. what if we keep receiving images?
+					receiveStopStream();
+				} catch (ProtocolException e1) {
+					e1.printStackTrace();
+				}
+				
 				try {
 					socket.close();
 					System.err.println("Socket Closed!");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-
 			}
+			
+			// Remove so we don't broadcast
+			removePeer(this);
 		}
 	}
 	
-	private void receiveImage() throws ProtocolException, IOException{
-		// Decompress then render (right now its receiving from this peer
-		//System.err.println("Waiting for Image..");
+	private void sendStopStream() {
+		System.err.println("Sending Stop Stream!");
+		StopStream m = new StopStream();
+		char[] buf = m.ToJSON().toCharArray();
+		out.println(buf);
+		out.flush();
+	}
+	
+	private void receiveStopStream() throws ProtocolException {
 		ProtocolFactory pmFac = new ProtocolFactory();
-		byte[] nobase64_image;
-		byte[] decompressed_image;
 		
+		try {
+			String mStr = in.readLine();
+			System.err.println("Received Line: " + mStr);
+			ProtocolMessage pm = pmFac.FromJSON(mStr);
+			if (pm.Type().equals("stopstream")) {
+				System.err.println("Stop Stream Received!");
+			} else if (pm.Type().equals("image")) {
+				System.err.println("Received Image when expecting Stop Stream");
+			} else {
+				throw new ProtocolException("Expecting Stop Stream");
+			}
+		} catch (IOException e) {
+			System.err.println("Socket Error (Expecting Stop Stream)");
+		}
+	}
+	
+	private void receiveMessage() throws IOException, ProtocolException{
 		String mStr = in.readLine();
-		//System.err.println("Something came in...");
-		//System.err.println("Received Line : "+mStr);
+		ProtocolFactory pmFac = new ProtocolFactory();
 		ProtocolMessage pm = pmFac.FromJSON(mStr);
+		
 		if (pm.Type().equals("image")) {
-			Image imageMessage = (Image) pm;
-			nobase64_image = Base64.decodeBase64(imageMessage.Data());
-			decompressed_image = Compressor.decompress(nobase64_image);
-			//System.err.println("Image Received...");
+			handleImage(pm);
+		} else if (pm.Type().equals("stopstream")) {
+			System.err.println("Received Stop Stream");
 		} else {
 			throw new ProtocolException("Invalid Protocol Message Received.");
 		}
+	}
+	
+	private void handleImage(ProtocolMessage pm) throws ProtocolException, IOException{
+		// Decompress then render (right now its receiving from this peer
+		//System.err.println("Waiting for Image..");
+		
+		byte[] nobase64_image;
+		byte[] decompressed_image;
+		
+		//System.err.println("Something came in...");
+		//System.err.println("Received Line : "+mStr);
+		Image imageMessage = (Image) pm;
+		nobase64_image = Base64.decodeBase64(imageMessage.Data());
+		decompressed_image = Compressor.decompress(nobase64_image);
+		//System.err.println("Image Received...");
+
 		viewer.ViewerInput(decompressed_image);
 	}
 	
@@ -187,7 +245,7 @@ public class Peer implements Runnable {
 		synchronized (peerlist) {
 			// Add peer
 			peerlist.add(peer);
-			System.err.println("Adding Peer --- Currently "+peerlist.size());
+			System.err.println("Adding Peer --- Now "+peerlist.size());
 		}
 	}
 	
@@ -195,7 +253,8 @@ public class Peer implements Runnable {
 	private static void removePeer(Peer peer){
 		synchronized (peerlist) {
 			// Remove peer
-			System.err.println("Removing Peer --- Currently "+peerlist.size());
+			peerlist.remove(peer);
+			System.err.println("Removing Peer --- Now "+peerlist.size());
 		}
 	}
 	

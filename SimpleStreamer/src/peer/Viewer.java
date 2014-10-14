@@ -51,4 +51,11 @@ public class Viewer extends JPanel{
         super.paintComponent(g);
         g.drawImage(image, 0, 0, null); // see javadoc for more info on the parameters            
     }
+    
+    // Close viewer
+    public void close() {
+    	System.err.println("Closing Viewer!");
+    	frame.setVisible(false);
+    	frame.dispose();
+    }
 }
