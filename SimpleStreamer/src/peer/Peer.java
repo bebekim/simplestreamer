@@ -41,6 +41,8 @@ public class Peer implements Runnable {
 	private PeerSend sender;
 	private Thread senderthread;
 	
+	private volatile boolean stopstream = false;
+	
 	public Peer(Socket socket, int rate, int width, int height, int peer_no, String type) throws NegotiationException {
 		
 		this.hostname = socket.getInetAddress().getCanonicalHostName();
@@ -132,7 +134,7 @@ public class Peer implements Runnable {
 	public void run() {
 		// Peer infinite loop used to listen to in stream?
 		try {
-			while (true) {
+			while (!stopstream) {
 				receiveMessage();
 			}			
 		} catch (ProtocolException e) {
@@ -217,10 +219,19 @@ public class Peer implements Runnable {
 		if (pm.Type().equals("image")) {
 			handleImage(pm);
 		} else if (pm.Type().equals("stopstream")) {
-			System.err.println("Received Stop Stream");
+			handleStopStream();
 		} else {
 			throw new ProtocolException("Invalid Protocol Message Received.");
 		}
+	}
+	
+	private void handleStopStream() {
+		
+		System.err.println("Received Stop Stream");
+		stopstream = true;
+		// Reply with StopStream
+		sendStopStream();
+		System.err.println("Sent Stop Stream");
 	}
 	
 	private void handleImage(ProtocolMessage pm) throws ProtocolException, IOException{
