@@ -1,0 +1,11 @@
+JAR File - SimpleStreamer.jar
+Source Zip - src.zip
+
+Known Behaviour/Issues
+=====
+Not Part of the spec, so we did not attempt to fix them.
+
+1.  If your attempt to run 2 or more instances of the SimpleStreamer on the same
+    local machine, it will throw a "Unable to start native grabber error"
+    - This happen because (obviously) because the device likely doesn't have
+    multiple webcam devices
